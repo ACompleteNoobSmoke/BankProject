@@ -1,111 +1,70 @@
 package Program;
 
-import java.sql.SQLException;
-
-
-import model.user;
-import respiratory.Driver;
+import gui.UserInputs;
 
 public class method {
-	
-	static Driver database = new Driver();
-	 
-	
-	public user withdraw(int choice, double withdrawal, user user) {
-		double total = 0;
-		user updatedUser = new user();
 
-		if(choice == 1) {
-			if(withdrawal > user.getCheck() || withdrawal <=0) {
-				total = 0;
-			}else {
-			total = user.getCheck() - withdrawal;
-			user.setCheck(total);
-			}
-		}else if(choice == 2){
-			if(withdrawal > user.getSave() || withdrawal <=0) {
-				total = 0;
-			}else {
-			total = user.getSave() - withdrawal;
-			user.setSave(total);
-			}
+	public static double performWithdraw(double oldAmount) {
+		double withdrawAmount = UserInputs.getWithdrawAmount();
+		if (withdrawAmount > oldAmount) {
+			System.err.println("WARNING: Overdraft!!");
+		} else if (withdrawAmount < 0) {
+			System.err.println("WARNING: Incorrect Input!!");
+		} else if (withdrawAmount == 0) {
+			System.err.println("No Amount Was Withdrawn From Account");
+		} else {
+			double newAmount = oldAmount - withdrawAmount;
+			System.out.println("UPDATE: $" + withdrawAmount + " Has Been Withdrawn");
+			return newAmount;
 		}
-		
-		try {
-			updatedUser = database.updateMoney(user);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return updatedUser;
-		
+		return oldAmount;
 	}
-	
-	public user deposit(int choice, double deposit, user user) {
-		double total = 0;
-		user updatedUser = null;
-		if(deposit > 0) {
-		
-			if(choice == 1) {
-			total = user.getCheck() + deposit;
-			user.setCheck(total);
-			}else if(choice == 2){
-			total = user.getSave() + deposit;
-			user.setSave(total);
-			}
-		}
-		
-		try {
-			updatedUser = database.updateMoney(user);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return updatedUser;
-		
-	}
-	
-	public user transfer(int choice, double amount, user user) {
-		double newCheck = 0;
-		double newSave = 0;
-		user updatedUser = null;
-		if(amount > 0) {
-		
-		if(choice == 1) {
-			if(amount > user.getCheck()) {
-				System.err.println("Insufficient Funds!!");
-			}else {
-			newCheck = user.getCheck() - amount;
-			newSave = user.getSave() + amount;
-			user.setCheck(newCheck);
-			user.setSave(newSave);
-			}
-		}else if(choice == 2){
-			if(amount > user.getSave()) {
-				System.err.println("Insufficient Funds!!");
-			}else {
-			newCheck = user.getCheck() + amount;
-			newSave = user.getSave() - amount;
-			user.setCheck(newCheck);
-			user.setSave(newSave);
-			}
-		}
-		}
-		
-		
-		
-		try {
-			updatedUser = database.updateMoney(user);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return updatedUser;
-		
-	}
-	
-	
 
+	public static double performDeposit(double oldAmountDep) {
+		double depositAmount = UserInputs.getDepositAmount();
+		if (depositAmount < 0) {
+			System.err.println("WARNING: Incorrect Input");
+		} else if (depositAmount == 0) {
+			System.out.println("No Amount Was Deposited Into Account");
+		} else {
+			double newAmountDep = oldAmountDep + depositAmount;
+			System.out.println("UPDATE: $" + newAmountDep + "Has Been Deposited");
+			return newAmountDep;
+		}
 
+		return oldAmountDep;
+	}
+
+	public double[] performTransfer(double oldAccount, double newAccount) {
+		double transferAccounts[] = new double[1];
+		transferAccounts[0] = oldAccount;
+		transferAccounts[1] = newAccount;
+		if (isEmpty(oldAccount)) {
+			return transferAccounts;
+		}
+		double transferAmount = UserInputs.getTransferAmount();
+		if (transferAmount > oldAccount) {
+			System.err.println("WARNING: This Amount Can Cause An Overdraft!");
+		} else if (transferAmount < 0) {
+			System.err.println("WARNING: Incorrect Input");
+		} else {
+			oldAccount = oldAccount - transferAmount;
+			newAccount = newAccount + transferAmount;
+			transferAccounts[0] = oldAccount;
+			transferAccounts[1] = newAccount;
+			System.out.println("UPDATE: The Amount Of $" + oldAccount + " Has Been Transferred");
+		}
+
+		return transferAccounts;
+	}
+
+	public boolean isEmpty(double amount) {
+		if (amount == 0 || amount <= 0) {
+			System.err.println("WARNING: Currently No Money In Account To Perform Action!!");
+			return true;
+		}
+
+		return false;
+	}
 
 }
