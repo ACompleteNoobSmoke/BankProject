@@ -1,9 +1,10 @@
 package Program;
 
-import gui.UserInputs;
+import gui1.UserInputs;
 
 public class method {
 
+	// Method to perform withdraw actions.
 	public static double performWithdraw(double oldAmount) {
 		double withdrawAmount = UserInputs.getWithdrawAmount();
 		if (withdrawAmount > oldAmount) {
@@ -20,6 +21,7 @@ public class method {
 		return oldAmount;
 	}
 
+	// Method to perform deposit actions.
 	public static double performDeposit(double oldAmountDep) {
 		double depositAmount = UserInputs.getDepositAmount();
 		if (depositAmount < 0) {
@@ -28,15 +30,15 @@ public class method {
 			System.out.println("No Amount Was Deposited Into Account");
 		} else {
 			double newAmountDep = oldAmountDep + depositAmount;
-			System.out.println("UPDATE: $" + newAmountDep + "Has Been Deposited");
+			System.out.println("UPDATE: $" + newAmountDep + " Has Been Deposited");
 			return newAmountDep;
 		}
-
 		return oldAmountDep;
 	}
 
-	public double[] performTransfer(double oldAccount, double newAccount) {
-		double transferAccounts[] = new double[1];
+	// Method to perform transfers between saving and checking accounts.
+	public static double[] performTransfer(double oldAccount, double newAccount) {
+		double transferAccounts[] = new double[2];
 		transferAccounts[0] = oldAccount;
 		transferAccounts[1] = newAccount;
 		if (isEmpty(oldAccount)) {
@@ -47,18 +49,21 @@ public class method {
 			System.err.println("WARNING: This Amount Can Cause An Overdraft!");
 		} else if (transferAmount < 0) {
 			System.err.println("WARNING: Incorrect Input");
+		} else if (transferAmount == 0) {
+			System.err.println("WARNING: No Amount Was Transferred!");
 		} else {
 			oldAccount = oldAccount - transferAmount;
 			newAccount = newAccount + transferAmount;
 			transferAccounts[0] = oldAccount;
 			transferAccounts[1] = newAccount;
-			System.out.println("UPDATE: The Amount Of $" + oldAccount + " Has Been Transferred");
+			System.out.println("UPDATE: The Amount Of $" + transferAmount + " Has Been Transferred");
 		}
 
 		return transferAccounts;
 	}
 
-	public boolean isEmpty(double amount) {
+	// Method to check if the account is empty.
+	public static boolean isEmpty(double amount) {
 		if (amount == 0 || amount <= 0) {
 			System.err.println("WARNING: Currently No Money In Account To Perform Action!!");
 			return true;

@@ -5,79 +5,73 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import model.user;
 
 public class Driver {
 
-	final String dbuser = "root";
-	final String dbpass = "codingroot1!";
-	final String dburl = "jdbc:mysql://localhost:3306/traindb?autoReconnect=true&useSSL=false";
-
-	public Connection getConnection() throws SQLException {
-		Connection con = null;
+	public static boolean checkUserName(String username) {
 		try {
-			con = DriverManager.getConnection(dburl, dbuser, dbpass);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return con;
-	}
-
-	public boolean checkUsername(String username) throws SQLException {
-		try {
-			Connection con = getConnection();
-			PreparedStatement ps = con.prepareStatement("select * from bank");
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			PreparedStatement ps = con.prepareStatement("Select UserName From `BankUser` Where UserName = (?)");
+			ps.setString(1, username);
 			ResultSet rs = ps.executeQuery();
-
 			while (rs.next()) {
-				if (rs.getString(3).equals(username)) {
+				String found = rs.getString("UserName");
+				if (found.equals(username)) {
 					return true;
 				}
 			}
-
+			ps.close();
+			rs.close();
+			con.close();
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.out.println("\nCheck Username Function Not Working\n");
 		}
-
 		return false;
 	}
 
-	public boolean checkPassword(String password) throws SQLException {
+	public static boolean checkPassword(String username, String password) {
 		try {
-			Connection con = getConnection();
-			PreparedStatement ps = con.prepareStatement("select * from bank");
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			PreparedStatement ps = con
+					.prepareStatement("Select Password From `BankUser` Where UserName = (?) AND Password = (?)");
+			ps.setString(1, username);
+			ps.setString(2, password);
 			ResultSet rs = ps.executeQuery();
-
 			while (rs.next()) {
-				if (rs.getString(4).equals(password)) {
+				String found = rs.getString("Password");
+				if (found.equals(password)) {
 					return true;
 				}
 			}
-
+			ps.close();
+			rs.close();
+			con.close();
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.out.println("\nCheck Password Function Not Working\n");
 		}
-
 		return false;
 	}
 
-	public boolean newProfile(user newUser) throws SQLException {
+	public static boolean saveNewProfile(user newUser) throws SQLException {
 		try {
-			Connection con = getConnection();
-			PreparedStatement ps = con.prepareStatement("insert into bank values(?, ?, ?, ?, ?, ?, ?, ?)");
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			PreparedStatement ps = con.prepareStatement("Insert Into `BankUser` values(?, ?, ?, ?)");
 			ps.setString(1, newUser.getF_name());
 			ps.setString(2, newUser.getL_name());
 			ps.setString(3, newUser.getUsername());
 			ps.setString(4, newUser.getPassword());
-			ps.setString(5, newUser.getQuest());
-			ps.setString(6, newUser.getAnswer());
-			ps.setDouble(7, newUser.getCheck());
-			ps.setDouble(8, newUser.getSave());
 			ps.execute();
-
+			ps.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -86,15 +80,58 @@ public class Driver {
 		return true;
 	}
 
-	public user login(String username, String password) {
+	public static boolean saveProfileSecurity(String username, String question, String answer) {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			PreparedStatement ps = con.prepareStatement("Insert Into `BankSecurity` values(?, ?, ?)");
+			ps.setString(1, username);
+			ps.setString(2, question);
+			ps.setString(3, answer);
+			ps.execute();
+			ps.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	public static boolean saveProfileAccounts(String username, double checkings, double savings) {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			PreparedStatement ps = con.prepareStatement("Insert Into `BankAccounts` values (?, ?, ?)");
+			ps.setString(1, username);
+			ps.setDouble(2, savings);
+			ps.setDouble(3, checkings);
+			ps.executeUpdate();
+			ps.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	public user loginFromDB(String username, String password) {
 		user returningUser = null;
 		try {
-
-			Connection con = getConnection();
-			PreparedStatement ps = con.prepareStatement("select * from bank");
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			PreparedStatement ps = con.prepareStatement(
+					"Select FirstName, LastName, `BankUser`.Username, Password, UserQuestion, UserAnswer, Savings, Checkings From `BankUser` \n"
+							+ "Join `BankSecurity` ON `BankUser`.Username = `BankSecurity`.Username  \n"
+							+ "Join `BankAccounts` ON `BankUser`.Username = `BankAccounts`.Username  \n"
+							+ "Where `BankUser`.Username = (?) AND 	`BankUser`.Password = (?) ");
+			ps.setString(1, username);
+			ps.setString(2, password);
 			ResultSet rs = ps.executeQuery();
 
-			while (rs.next()) {
+			if (rs.next()) {
 				if (rs.getString(3).equals(username) && rs.getString(4).equals(password)) {
 					returningUser = new user();
 					returningUser.setF_name(rs.getString(1));
@@ -103,8 +140,8 @@ public class Driver {
 					returningUser.setPassword(rs.getString(4));
 					returningUser.setQuest(rs.getString(5));
 					returningUser.setAnswer(rs.getString(6));
-					returningUser.setCheck(rs.getDouble(7));
-					returningUser.setSave(rs.getDouble(8));
+					returningUser.setSave(rs.getDouble(7));
+					returningUser.setCheck(rs.getDouble(8));
 				}
 			}
 		} catch (Exception e) {
@@ -113,118 +150,144 @@ public class Driver {
 		return returningUser;
 	}
 
-	public user secureLogin(String question, String answer) {
-		user returningUser = null;
+	public String getSecurityFromDB(String securityUserName, String securityQuestion, String securityAnswer) {
+		String securityPassword = "";
 		try {
-
-			Connection con = getConnection();
-			PreparedStatement ps = con.prepareStatement("select * from bank");
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			PreparedStatement ps = con.prepareStatement("Select `BankUser`.UserName, Password From `BankUser` \n"
+					+ "JOIN `BankSecurity` ON `BankUser`.UserName = `BankSecurity`.UserName \n"
+					+ "Where `BankSecurity`.UserName = (?) AND UserQuestion = (?) AND UserAnswer = (?)");
+			ps.setString(1, securityUserName);
+			ps.setString(2, securityQuestion);
+			ps.setString(3, securityAnswer);
 			ResultSet rs = ps.executeQuery();
 
 			while (rs.next()) {
-				if (rs.getString(5).equalsIgnoreCase(question) && rs.getString(6).equals(answer)) {
-					returningUser = new user();
-					returningUser.setF_name(rs.getString(1));
-					returningUser.setL_name(rs.getString(2));
-					returningUser.setUsername(rs.getString(3));
-					returningUser.setPassword(rs.getString(4));
-					returningUser.setQuest(rs.getString(5));
-					returningUser.setAnswer(rs.getString(6));
-					returningUser.setCheck(rs.getDouble(7));
-					returningUser.setSave(rs.getDouble(8));
+				if (rs.getString(1).equals(securityUserName)) {
+					securityPassword = rs.getString(2);
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			return null;
 		}
-		return returningUser;
+
+		return securityPassword;
 	}
 
-	public user updateMoney(user user) throws SQLException {
+	public double getAccountsFromDB(String userName, String account) {
+		double amountFromDB = 0;
 		try {
-			Connection con = getConnection();
-			PreparedStatement ps = con.prepareStatement("update bank set checking = ?, saving = ? where username = ?");
-			ps.setDouble(1, user.getCheck());
-			ps.setDouble(2, user.getSave());
-			ps.setString(3, user.getUsername());
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			String query = "Select UserName, " + account + " From `BankAccounts` Where Username = (?)";
+			PreparedStatement ps = con.prepareStatement(query);
+			ps.setString(1, userName);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+				if (rs.getString(1).equals(userName)) {
+					amountFromDB = rs.getDouble(2);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return -1.0;
+		}
+
+		return amountFromDB;
+	}
+
+	public void updateMoney(String userName, String account, double newAmount) {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			String query = "Update `BankAccounts` Set  " + account + " = (?) Where Username = (?)";
+			PreparedStatement ps = con.prepareStatement(query);
+			ps.setDouble(1, newAmount);
+			ps.setString(2, userName);
 			ps.executeUpdate();
-
+			ps.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		return user;
 	}
 
-	public user AdminSearch(String username) {
-		user returningUser = null;
-		try {
+	// public user AdminSearch(String username) {
+	// user returningUser = null;
+	// try {
 
-			Connection con = getConnection();
-			PreparedStatement ps = con.prepareStatement("select * from bank");
-			ResultSet rs = ps.executeQuery();
+	// Connection con = getConnection();
+	// PreparedStatement ps = con.prepareStatement("select * from bank");
+	// ResultSet rs = ps.executeQuery();
 
-			while (rs.next()) {
-				if (rs.getString(3).equals(username)) {
-					returningUser = new user();
-					returningUser.setF_name(rs.getString(1));
-					returningUser.setL_name(rs.getString(2));
-					returningUser.setUsername(rs.getString(3));
-					returningUser.setPassword(rs.getString(4));
-					returningUser.setQuest(rs.getString(5));
-					returningUser.setAnswer(rs.getString(6));
-					returningUser.setCheck(rs.getDouble(7));
-					returningUser.setSave(rs.getDouble(8));
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return returningUser;
-	}
+	// while (rs.next()) {
+	// if (rs.getString(3).equals(username)) {
+	// returningUser = new user();
+	// returningUser.setF_name(rs.getString(1));
+	// returningUser.setL_name(rs.getString(2));
+	// returningUser.setUsername(rs.getString(3));
+	// returningUser.setPassword(rs.getString(4));
+	// returningUser.setQuest(rs.getString(5));
+	// returningUser.setAnswer(rs.getString(6));
+	// returningUser.setCheck(rs.getDouble(7));
+	// returningUser.setSave(rs.getDouble(8));
+	// }
+	// }
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// return returningUser;
+	// }
 
-	public boolean delete(String username) throws SQLException {
-		try {
-			Connection con = getConnection();
-			PreparedStatement ps = con.prepareStatement("delete from bank where username = ?");
-			ps.setString(1, username);
-			ps.executeUpdate();
-			return true;
+	// public boolean delete(String username) throws SQLException {
+	// try {
+	// Connection con = getConnection();
+	// PreparedStatement ps = con.prepareStatement("delete from bank where username
+	// = ?");
+	// ps.setString(1, username);
+	// ps.executeUpdate();
+	// return true;
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return false;
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// return false;
 
-	}
+	// }
 
-	public ArrayList<user> allUsers() {
-		ArrayList<user> all = new ArrayList<user>();
-		user returningUser = null;
-		try {
+	// public ArrayList<user> allUsers() {
+	// ArrayList<user> all = new ArrayList<user>();
+	// user returningUser = null;
+	// try {
 
-			Connection con = getConnection();
-			PreparedStatement ps = con.prepareStatement("select * from bank");
-			ResultSet rs = ps.executeQuery();
+	// Connection con = getConnection();
+	// PreparedStatement ps = con.prepareStatement("select * from bank");
+	// ResultSet rs = ps.executeQuery();
 
-			while (rs.next()) {
+	// while (rs.next()) {
 
-				returningUser = new user();
-				returningUser.setF_name(rs.getString(1));
-				returningUser.setL_name(rs.getString(2));
-				returningUser.setUsername(rs.getString(3));
-				returningUser.setPassword(rs.getString(4));
-				returningUser.setQuest(rs.getString(5));
-				returningUser.setAnswer(rs.getString(6));
-				returningUser.setCheck(rs.getDouble(7));
-				returningUser.setSave(rs.getDouble(8));
-				all.add(returningUser);
+	// returningUser = new user();
+	// returningUser.setF_name(rs.getString(1));
+	// returningUser.setL_name(rs.getString(2));
+	// returningUser.setUsername(rs.getString(3));
+	// returningUser.setPassword(rs.getString(4));
+	// returningUser.setQuest(rs.getString(5));
+	// returningUser.setAnswer(rs.getString(6));
+	// returningUser.setCheck(rs.getDouble(7));
+	// returningUser.setSave(rs.getDouble(8));
+	// all.add(returningUser);
 
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return all;
-	}
+	// }
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// return all;
+	// }
 
 }

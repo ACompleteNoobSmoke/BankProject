@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="gui/" kind="src" path="DBPractice/src"/>
+	<classpathentry kind="src" path="DBPractice/src/gui"/>
+	<classpathentry exported="true" kind="lib" path="DBPractice/lib/mysql-connector-java-5.1.48-bin.jar"/>
+	<classpathentry kind="output" path="DBPractice/bin"/>
+</classpath>
