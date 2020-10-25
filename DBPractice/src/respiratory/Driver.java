@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import model.user;
 
@@ -58,6 +59,30 @@ public class Driver {
 			System.out.println("\nCheck Password Function Not Working\n");
 		}
 		return false;
+	}
+
+	public static String getUserNameByFullName(String firstName, String lastName) {
+		String userName = "";
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			PreparedStatement ps = con.prepareStatement(
+					"Select FirstName, LastName, UserName From `BankUser` Where FirstName = (?) AND LastName = (?)");
+			ps.setString(1, firstName);
+			ps.setString(2, lastName);
+			ResultSet rs = ps.executeQuery();
+
+			if (rs.next()) {
+				if (rs.getString("FirstName").equals(firstName) && rs.getString("LastName").equals(lastName)) {
+					userName = rs.getString("UserName");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return userName;
+
 	}
 
 	public static boolean saveNewProfile(user newUser) throws SQLException {
@@ -215,79 +240,213 @@ public class Driver {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
-	// public user AdminSearch(String username) {
-	// user returningUser = null;
-	// try {
+	public static user adminSearchUsername(String username) {
+		user foundUser = null;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			PreparedStatement ps = con.prepareStatement(
+					"Select FirstName, LastName, `BankUser`.Username, Password, UserQuestion, UserAnswer, Savings, Checkings From `BankUser` \n"
+							+ "Join `BankSecurity` ON `BankUser`.Username = `BankSecurity`.Username  \n"
+							+ "Join `BankAccounts` ON `BankUser`.Username = `BankAccounts`.Username  \n"
+							+ "Where `BankUser`.Username = (?)");
+			ps.setString(1, username);
+			ResultSet rs = ps.executeQuery();
 
-	// Connection con = getConnection();
-	// PreparedStatement ps = con.prepareStatement("select * from bank");
-	// ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				if (rs.getString(3).equals(username)) {
+					foundUser = new user();
+					foundUser.setF_name(rs.getString(1));
+					foundUser.setL_name(rs.getString(2));
+					foundUser.setUsername(rs.getString(3));
+					foundUser.setPassword(rs.getString(4));
+					foundUser.setQuest(rs.getString(5));
+					foundUser.setAnswer(rs.getString(6));
+					foundUser.setSave(rs.getDouble(7));
+					foundUser.setCheck(rs.getDouble(8));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return foundUser;
+	}
 
-	// while (rs.next()) {
-	// if (rs.getString(3).equals(username)) {
-	// returningUser = new user();
-	// returningUser.setF_name(rs.getString(1));
-	// returningUser.setL_name(rs.getString(2));
-	// returningUser.setUsername(rs.getString(3));
-	// returningUser.setPassword(rs.getString(4));
-	// returningUser.setQuest(rs.getString(5));
-	// returningUser.setAnswer(rs.getString(6));
-	// returningUser.setCheck(rs.getDouble(7));
-	// returningUser.setSave(rs.getDouble(8));
-	// }
-	// }
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// return returningUser;
-	// }
+	public static user adminSearchFullName(String firstName, String lastName) {
+		user foundUser = null;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			PreparedStatement ps = con.prepareStatement(
+					"Select FirstName, LastName, `BankUser`.Username, Password, UserQuestion, UserAnswer, Savings, Checkings From `BankUser` \n"
+							+ "Join `BankSecurity` ON `BankUser`.Username = `BankSecurity`.Username  \n"
+							+ "Join `BankAccounts` ON `BankUser`.Username = `BankAccounts`.Username  \n"
+							+ "Where `BankUser`.FirstName = (?) AND `BankUser`.LastName = (?)");
+			ps.setString(1, firstName);
+			ps.setString(2, lastName);
+			ResultSet rs = ps.executeQuery();
 
-	// public boolean delete(String username) throws SQLException {
-	// try {
-	// Connection con = getConnection();
-	// PreparedStatement ps = con.prepareStatement("delete from bank where username
-	// = ?");
-	// ps.setString(1, username);
-	// ps.executeUpdate();
-	// return true;
+			if (rs.next()) {
+				if (rs.getString(1).equals(firstName) && rs.getString(2).equals(lastName)) {
+					foundUser = new user();
+					foundUser.setF_name(rs.getString(1));
+					foundUser.setL_name(rs.getString(2));
+					foundUser.setUsername(rs.getString(3));
+					foundUser.setPassword(rs.getString(4));
+					foundUser.setQuest(rs.getString(5));
+					foundUser.setAnswer(rs.getString(6));
+					foundUser.setSave(rs.getDouble(7));
+					foundUser.setCheck(rs.getDouble(8));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return foundUser;
+	}
 
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// return false;
+	public static boolean adminDeleteUsername(String username) {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			String query = "Delete From `BankUser` where Username = (?)";
+			PreparedStatement ps = con.prepareStatement(query);
+			ps.setString(1, username);
+			int delete = ps.executeUpdate();
 
-	// }
+			if (delete == 1) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 
-	// public ArrayList<user> allUsers() {
-	// ArrayList<user> all = new ArrayList<user>();
-	// user returningUser = null;
-	// try {
+	public static boolean deleteBankSecurity(String userName) {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			String query = "Delete From `BankSecurity` where Username = (?)";
+			PreparedStatement ps = con.prepareStatement(query);
+			ps.setString(1, userName);
+			int delete = ps.executeUpdate();
 
-	// Connection con = getConnection();
-	// PreparedStatement ps = con.prepareStatement("select * from bank");
-	// ResultSet rs = ps.executeQuery();
+			if (delete == 1) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 
-	// while (rs.next()) {
+	public static boolean deleteBankAccount(String userName) {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			String query = "Delete From `BankAccounts` where Username = (?)";
+			PreparedStatement ps = con.prepareStatement(query);
+			ps.setString(1, userName);
+			int delete = ps.executeUpdate();
 
-	// returningUser = new user();
-	// returningUser.setF_name(rs.getString(1));
-	// returningUser.setL_name(rs.getString(2));
-	// returningUser.setUsername(rs.getString(3));
-	// returningUser.setPassword(rs.getString(4));
-	// returningUser.setQuest(rs.getString(5));
-	// returningUser.setAnswer(rs.getString(6));
-	// returningUser.setCheck(rs.getDouble(7));
-	// returningUser.setSave(rs.getDouble(8));
-	// all.add(returningUser);
+			if (delete == 1) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 
-	// }
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// return all;
-	// }
+	public static boolean deleteBankUser() {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			PreparedStatement ps = con.prepareStatement("Delete From  `BankUser`");
+			int delete = ps.executeUpdate();
+
+			if (delete == 1) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public static boolean deleteSecurity() {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			PreparedStatement ps = con.prepareStatement("Truncate Table `BankSecurity`");
+			int delete = ps.executeUpdate();
+
+			if (delete == 1) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public static boolean deleteAccounts() {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			PreparedStatement ps = con.prepareStatement("Truncate Table `BankAccounts`");
+			int delete = ps.executeUpdate();
+
+			if (delete == 1) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public static ArrayList<user> allUsers() {
+		ArrayList<user> all = new ArrayList<user>();
+		user foundUser = null;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(
+					"jdbc:mysql://localhost:3306/BankAppSQL?autoReconnect=true&useSSL=false", "root", "codingroot1!");
+			PreparedStatement ps = con.prepareStatement(
+					"Select FirstName, LastName, `BankUser`.Username, Password, UserQuestion, UserAnswer, Savings, Checkings From `BankUser` \n"
+							+ "Join `BankSecurity` ON `BankUser`.Username = `BankSecurity`.Username  \n"
+							+ "Join `BankAccounts` ON `BankUser`.Username = `BankAccounts`.Username  \n");
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+				foundUser = new user();
+				foundUser.setF_name(rs.getString(1));
+				foundUser.setL_name(rs.getString(2));
+				foundUser.setUsername(rs.getString(3));
+				foundUser.setPassword(rs.getString(4));
+				foundUser.setQuest(rs.getString(5));
+				foundUser.setAnswer(rs.getString(6));
+				foundUser.setSave(rs.getDouble(7));
+				foundUser.setCheck(rs.getDouble(8));
+				all.add(foundUser);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		return all;
+	}
 
 }

@@ -73,7 +73,7 @@ public class menu {
 			System.out.println("**** Select Account ****");
 			System.out.println("1. Checkings Account");
 			System.out.println("2. Savings Account");
-			System.out.print("Action: ");
+			System.out.print("\nAction: ");
 			account = UserInputs.getInt();
 			System.out.println("");
 		}
@@ -86,9 +86,64 @@ public class menu {
 			System.out.println("**** Select Account(Transfer) ****");
 			System.out.println("1. Checkings -> Savings");
 			System.out.println("2. Savings -> Checkings");
-			System.out.print("Action: ");
+			System.out.print("\nAction: ");
 			accountTransfer = UserInputs.getInt();
 		}
 		return accountTransfer;
+	}
+
+	public int adminMenu(admin admin) {
+		int menuPick = 0;
+		while (menuPick < 1 || menuPick > 4) {
+			System.out.println("********ADMINSISTRATION********\n");
+			System.out.println("Welcome Back BASEGOD!!!\n");
+			System.out.println("1. Search");
+			System.out.println("2. Delete");
+			System.out.println("3. View");
+			System.out.println("4. Log Out");
+			System.out.print("\nAction: ");
+			menuPick = UserInputs.getInt();
+		}
+		return menuPick;
+	}
+
+	public int adminSearchMenu() {
+		int searchPick = 0;
+		while (searchPick < 1 || searchPick > 3) {
+			System.out.println("****Search Option****");
+			System.out.println("1. Search By Username");
+			System.out.println("2. Search By Name");
+			System.out.println("3. Back");
+			System.out.print("\nAction: ");
+			searchPick = UserInputs.getInt();
+		}
+		return searchPick;
+	}
+
+	public int adminDeleteMenu() {
+		int deletePick = 0;
+		while (deletePick < 1 || deletePick > 4) {
+			System.out.println("****Delete Option****");
+			System.out.println("1. Delete By Username");
+			System.out.println("2. Delete By Name");
+			System.out.println("3. Delete All User");
+			System.out.println("4. Back");
+			System.out.print("\nAction: ");
+			deletePick = UserInputs.getInt();
+		}
+		return deletePick;
+	}
+
+	public int adminViewMenu() {
+		int menuPick = 0;
+		while (menuPick < 1 || menuPick > 3) {
+			System.out.println("****View Option****");
+			System.out.println("1. View Searched Profile");
+			System.out.println("2. View All");
+			System.out.println("3. Back");
+			System.out.print("\nAction: ");
+			menuPick = UserInputs.getInt();
+		}
+		return menuPick;
 	}
 }

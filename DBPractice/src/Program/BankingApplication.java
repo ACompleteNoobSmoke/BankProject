@@ -2,15 +2,32 @@ package Program;
 
 import gui1.UserInputs;
 import gui1.menu;
+import model.admin;
 import model.user;
 
 public class BankingApplication {
 
+	public void runProgram(Object newUser, UserMethods userMeth, AdminMethod adminMeth) {
+		if (newUser instanceof admin) {
+			admin newAdmin = (admin) newUser;
+			while (newAdmin != null) {
+				newAdmin = adminMeth.adminChoices(newAdmin);
+			}
+		} else if (newUser instanceof user) {
+			user newBankUser = (user) newUser;
+			while (newBankUser != null) {
+				newBankUser = userMeth.userActions(newBankUser);
+			}
+		}
+	}
+
 	public static void main(String[] args) {
+		Object newUser = null;
 		menu menu = new menu();
-		user newUser = new user();
 		MenuMethods menuMeth = new MenuMethods();
 		UserMethods userMeth = new UserMethods();
+		AdminMethod adminMeth = new AdminMethod();
+		BankingApplication program = new BankingApplication();
 		while (true) {
 			int i = menu.mainMenu();
 			if (i == 1) {
@@ -22,12 +39,8 @@ public class BankingApplication {
 				UserInputs.closeScanner();
 				System.exit(0);
 			}
-
-			while (newUser != null) {
-				newUser = userMeth.userActions(newUser);
-			}
+			program.runProgram(newUser, userMeth, adminMeth);
 		}
-
 	}
 
 }

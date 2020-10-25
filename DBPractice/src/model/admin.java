@@ -6,7 +6,7 @@ public class admin {
 	private final String username = "LilB";
 	private final String password = "TYBG";
 
-	public String getAdminNmae() {
+	public String getAdminName() {
 		return name;
 	}
 

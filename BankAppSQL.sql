@@ -34,8 +34,3 @@ FOREIGN KEY(UserName) REFERENCES BankUser(UserName)
 select * from BankAccounts;
 truncate BankAccounts;
 drop table BankAccounts;
-
-Select FirstName, LastName, BankUser.Username, Password, UserQuestion, UserAnswer, Savings, Checkings From BankUser 
-Join BankSecurity ON BankUser.Username = BankSecurity.Username
-Join BankAccounts ON BankUser.Username = BankAccounts.Username 
-Where BankUser.Username = "Prince Aji" AND 	BankUser.Password = "Boye";

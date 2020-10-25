@@ -4,20 +4,25 @@ import java.sql.SQLException;
 
 import gui1.UserInputs;
 import gui1.menu;
+import model.admin;
 import model.user;
 import respiratory.Driver;
 
 public class MenuMethods {
 
 	// Method used to login with username and password.
-	public user loginWithInfo() {
-		user returningUser = null;
+	public Object loginWithInfo() {
+		Object returningUser = null;
 		Driver SQL = new Driver();
 
 		if (returningUser == null) {
 			System.out.println("**** Login ****");
 			String logUsername = UserInputs.getUserName();
 			String logPassword = UserInputs.getPassword();
+			if (logUsername.equals("LILB") && logPassword.equals("TYBG")) {
+				returningUser = new admin();
+				return returningUser;
+			}
 			returningUser = SQL.loginFromDB(logUsername, logPassword);
 			if (returningUser == null) {
 				System.err.println("\nUsername Or Password Is Incorrect!\n");
@@ -49,10 +54,10 @@ public class MenuMethods {
 
 	// Method that combines both method of login(info & serurity) also with
 	// counters.
-	public user login() {
+	public Object login() {
 		int counter1 = 0;
 		int counter2 = 0;
-		user loginUser = null;
+		Object loginUser = null;
 
 		while (counter1 < 3) {
 			loginUser = loginWithInfo();

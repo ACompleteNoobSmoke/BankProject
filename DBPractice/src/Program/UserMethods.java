@@ -25,7 +25,7 @@ public class UserMethods {
                 transferAction(userName);
                 break;
             case 4:
-                bankUser.profileView();
+                viewAction(bankUser);
                 break;
             case 5:
                 bankUser = logoutAction(userName);
@@ -75,6 +75,14 @@ public class UserMethods {
         double[] transfer = method.performTransfer(moneyFromDB1, moneyFromDB2);
         SQL.updateMoney(userName, firstAccount, transfer[0]);
         SQL.updateMoney(userName, secondAccount, transfer[1]);
+    }
+
+    // Method to perform the viewing action.
+    public void viewAction(user bankUser) {
+        bankUser.profileView();
+        System.out.print("Press Anything To Continue!");
+        UserInputs.getString();
+        System.out.println("");
 
     }
 

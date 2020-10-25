@@ -140,6 +140,20 @@ public class UserInputs {
 		return accounts;
 	}
 
+	public static String getSearchString(int searcPick) {
+		String searchName = "";
+		if (searcPick == 1) {
+			System.out.println("\n****Search(Username)****");
+			searchName = getUserName();
+		} else if (searcPick == 2) {
+			System.out.println("\n****Search(Name)****");
+			searchName = getFirstName();
+			searchName += " ";
+			searchName += getLastName();
+		}
+		return searchName;
+	}
+
 	// Method to close scanner
 	public static void closeScanner() {
 		scan.close();
